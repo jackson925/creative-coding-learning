@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>Urpflanze | Animations | 01 - Basic prop animation</title>
+		<script src="https://cdn.jsdelivr.net/npm/@urpflanze/js/build/umd/urpflanze-light.min.js"></script>
+		<style>
+			* {
+				margin: 0;
+				overflow: hidden;
+				display: flex;
+			}
+		</style>
+	</head>
+	<body>
+		<script>
+			const scene = new Urpflanze.Scene()
+			let time = 3000; //  3 second
+			let shapes = 5;
+			let shape;
+			let modofiedShapes = [];
+
+			const createNewShape = (reps) => {
+				return new Urpflanze.Rect({
+					repetitions: reps,
+					sideLength: 20,
+					distance: () => Math.sin(scene.currentTime / 100) * 150,
+				})
+			}
+
+			shape = createNewShape(shapes)
+			scene.add(shape)
+		
+			const modifyShape = () => {
+				const children = scene.getChildren();
+				const length = children.length;
+				const index = length - 1;
+				const child = children[index];
+
+				if(length){
+					scene.remove(length - 1);
+				}
+			}
+
+			const createShapeInterval = () => {
+				if(shapes){
+					shape = createNewShape(shapes * Math.sin(10 / shapes));
+					scene.add(shape)
+					shapes = shapes - 1;
+					console.log('down', shapes);
+				} else if(shapes <= 5) {
+					modifyShape();
+				} else {
+					scene.removeChildren();
+				}
+			} 
+
+			setInterval(createShapeInterval, (time * (shapes / 10)))
+			const drawer = new Urpflanze.DrawerCanvas(scene, document.body)
+			drawer.startAnimation() // <- change draw() to startAnimation()
+		</script>
+	</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<script src="https://cdn.jsdelivr.net/npm/@urpflanze/js/build/umd/urpflanze-light.min.js"></script>
+		<style>
+			* {
+				margin: 0;
+				overflow: hidden;
+				display: flex;
+			}
+		</style>
+	</head>
+	<body>
+
+        <script type="module">
+            // ...
+
+            const renderer = new Urpflanze.Renm(drawer)
+
+            renderer.attach('renderer:zip_start', e => console.log('renderer start', e))
+            renderer.attach('renderer:zip_progress', e => console.log('renderer render frame', e))
+            renderer.attach('renderer:zip_preparing', e => console.log('preparing zip', e))
+
+            function render() {
+                drawer.stopAnimation()
+
+                renderer.zip('image/png'/*, quality, framesForChunk */).then(zipParts => {
+                    for (let i = 0, len = zipParts.length; i < len; i++) {
+                        const name = 'part_' + (i + 1)
+
+                        const blob = new Blob([zipParts[i]], { type: 'application/zip' })
+                        const chunkURL = window.URL.createObjectURL(blob)
+
+                        const link = document.createElement('a')
+                        link.setAttribute('_target', '_blank')
+                        link.setAttribute('download', name + '.zip')
+                        link.setAttribute('href', url)
+                        link.innerText = name
+                        document.body.appendChild(link)
+                    }
+                })
+            }
+        </script>
+		<script>
+            // display triangle animation repeating repitions of traingles in set of 3, 6 and 9
+            // create screen  
+
+			const scene = new Urpflanze.Scene();
+
+            const shape = new Urpflanze.ShapeLoop({
+				repetitions: [3, 2],
+				distance: (propArguments) => scene.currentTime / 50 * Math.cos(scene.currentTime * 10000000 * .75),
+                scale: ({ repetition }) => repetition.offset * 2,
+				sideLength: [00, 50],
+				loop: {
+					start: 1,
+					end: Math.PI * 10,
+					inc: 0.1,
+					vertex: (shapeLoopRepetition, propArguments) => {
+						const frequency = propArguments.repetition.index * 5
+						const angle = shapeLoopRepetition.offset * Math.PI * .5
+
+						const x =  shapeLoopRepetition.offset * 2 - 1 * angle
+						const y = Math.sin(shapeLoopRepetition.offset * angle * frequency)
+ 
+						return [x, y]
+					},
+                    translate: propArguments => {
+                        const x = propArguments.repetition.col.offset * 30 + scene.center[0]
+                        const y = propArguments.repetition.col.offset - 20
+
+                        return [x, y]
+				    },
+                    rotateZ: ({ repetition }) => {
+                        const t = Math.sin(scene.currentTime / 100)
+
+                        const center = [Math.cos(scene.currentTime / 60) * t, Math.sin(scene.currentTime / 300) * t]
+
+                        return Urpflanze.angleFromRepetition(repetition, center)
+				    },
+                    
+				},
+                
+                drawer: {
+                    stroke: propArguments => {
+                        const hue = propArguments.repetition.col.offset -1
+                        const offset = scene.currentTime * 120 * propArguments.repetition.row.offset
+    
+                        const h = Math.floor(hue + offset) - offset
+                        return `hsl(${h % 360}, 80%, 60%)`
+                    },
+                },
+                modifiers: [new Urpflanze.Modifiers.Smooth({ level: 3, tension: 0 })],
+				loopDependencies: ['propArguments'],
+				bClosed: false,
+			});
+
+
+
+
+            scene.add(shape);
+
+
+
+			// mainInterval = setInterval(animate, time);
+			const drawer = new Urpflanze.DrawerCanvas(scene, document.body)
+            // , {
+			// 	ghosts: 80,
+			// 	ghostSkipFunction: ghostsRepetition => ghostsRepetition.index ** 1.5,
+			// })
+			drawer.startAnimation() // <- change draw() to startAnimation()
+
+            
+		</script>
+
+	</body>
+</html>

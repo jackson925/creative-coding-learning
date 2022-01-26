@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<script src="https://cdn.jsdelivr.net/npm/@urpflanze/js/build/umd/urpflanze-light.min.js"></script>
+		<style>
+			* {
+				margin: 0;
+				overflow: hidden;
+				display: flex;
+			}
+		</style>
+	</head>
+	<body>
+		<script>
+            // display triangle animation repeating repitions of traingles in set of 3, 6 and 9
+            // create screen  
+
+
+            let pattern = 0;
+            let index = 0;
+			let iterations = 1;
+            let defaultTime = 10;
+			let time = defaultTime;
+            let stroke = "FFFFFF"
+            let maxAnimations = 5;
+
+
+
+			const scene = new Urpflanze.Scene();
+
+
+            function pruneAnimations(){
+                const children = scene.getChildren();
+                
+                if(children.length === maxAnimations){
+                    scene.removeChildren();
+                    return true;
+                }
+
+                return false;
+            }
+
+
+			// const animate = () => {
+         
+            //     let pruned = pruneAnimations();
+
+         
+            //     if(pruned){
+            //         time = defaultTime;
+            //         iterations++
+            //         console.log(scene.getChildren())
+            //     }
+
+            //     console.log(scene.getChildren().length, pruned, patternId, iterations, time)
+			// } 
+
+
+
+            // const rect = new Urpflanze.Rect({
+            //         repetitions: [3, 2],
+            //         // distance: propArguments => propArguments.repetition.offset * 140,
+            //         distance: () => Math.sin(scene.currentTime / 500) * 200,
+            //         // displace: propArguments => (scene.currentTime / 100),
+            //         sideLength: 100,
+            //         drawer: {
+            //             stroke: "#480bff"
+            //         }
+            // });
+
+            // const group = new Urpflanze.Group({ repetitions: 4 });
+
+            const shape = new Urpflanze.ShapeLoop({
+				repetitions: [1, 8],
+				distance: () => scene.currentTime / 1000 * 1.25,
+				sideLength: [400, 100],
+				loop: {
+					start: 1,
+					end: Math.PI * 60,
+					inc: 0.5,
+					vertex: (shapeLoopRepetition, propArguments) => {
+						const frequency = 1 * Math.cos(scene.currentTime / 1000) / ( .0005 * scene.currentTime)
+                        //propArguments.repetition.index * .25 * propArguments.repetition.index
+						const angle = shapeLoopRepetition.offset * Math.PI * 2 / (Math.sin(scene.currentTime  / 1000) * (.005 * scene.currentTime))
+
+						const x = shapeLoopRepetition.offset * 2 - 1.25
+						const y = Math.sin(angle * frequency)
+
+						return [x, y]
+					},
+                    translate: propArguments => {
+                        const x = propArguments.repetition.col.offset * - 30 + scene.center[0] ^ propArguments.repetition.index
+                        const y = propArguments.repetition.col.offset - .5
+
+                        return [x, y]
+				    },
+				},
+
+				loopDependencies: ['propArguments'],
+				bClosed: false,
+			});
+
+
+
+
+            scene.add(shape);
+
+
+
+			// mainInterval = setInterval(animate, time);
+			const drawer = new Urpflanze.DrawerCanvas(scene, document.body
+            , {
+				ghosts: 80,
+				ghostSkipFunction: ghostsRepetition => ghostsRepetition.index ** 1.5,
+			})
+			drawer.startAnimation() // <- change draw() to startAnimation()
+		</script>
+	</body>
+</html>

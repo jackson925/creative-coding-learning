@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<script src="https://cdn.jsdelivr.net/npm/@urpflanze/js/build/umd/urpflanze-light.min.js"></script>
+		<style>
+			* {
+				margin: 0;
+				overflow: hidden;
+				display: flex;
+			}
+		</style>
+	</head>
+	<body>
+		<script>
+            // display triangle animation repeating repitions of traingles in set of 3, 6 and 9
+            // create screen  
+
+
+            let pattern = 0;
+            let index = 0;
+			let iterations = 1;
+            let defaultTime = 10;
+			let time = defaultTime;
+            let stroke = "FFFFFF"
+            let maxAnimations = 5;
+
+
+			const scene = new Urpflanze.Scene();
+
+
+            const shape = new Urpflanze.ShapeLoop({
+				repetitions: [2, 3],
+				distance: () => scene.currentTime / 1000 * 5.75,
+				sideLength: [220, 10],
+				loop: {
+					start: .2,
+					end: Math.PI * 60,
+					inc: 0.1,
+					vertex: (shapeLoopRepetition, propArguments) => {
+						const frequency = propArguments.repetition.index * 5
+						const angle = shapeLoopRepetition.offset * Math.PI * 5
+
+						const x = shapeLoopRepetition.offset * 2 - 1 * angle
+						const y = Math.sin(angle * frequency)
+
+						return [x, y]
+					},
+                    translate: propArguments => {
+                        const x = propArguments.repetition.col.offset * -30 + scene.center[0] / 10
+                        const y = propArguments.repetition.col.offset - 20
+
+                        return [x, y]
+				    },
+                    rotateZ: ({ repetition }) => {
+                        const t = Math.sin(scene.currentTime / 100)
+
+                        const center = [Math.cos(scene.currentTime / 30) * t, Math.sin(scene.currentTime / 300) * t]
+
+                        return Urpflanze.angleFromRepetition(repetition, center)
+				    },
+				},
+
+				loopDependencies: ['propArguments'],
+				bClosed: false,
+			});
+
+
+
+
+            scene.add(shape);
+
+
+
+			const drawer = new Urpflanze.DrawerCanvas(scene, document.body)
+            // , {
+			// 	ghosts: 80,
+			// 	ghostSkipFunction: ghostsRepetition => ghostsRepetition.index ** 1.5,
+			// })
+			drawer.startAnimation() // <- change draw() to startAnimation()
+		</script>
+	</body>
+</html>

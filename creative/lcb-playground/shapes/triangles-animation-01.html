@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<script src="https://cdn.jsdelivr.net/npm/@urpflanze/js/build/umd/urpflanze-light.min.js"></script>
+		<style>
+			* {
+				margin: 0;
+				overflow: hidden;
+			}
+            .container {
+				display: flex;
+                flex-wrap: wrap;
+            }
+            .canvas-container {
+                padding: 1rem;
+                flex-basis: 33%;
+            }
+		</style>
+	</head>
+	<body>
+		<script>
+            // display triangle animation repeating repitions of traingles in set of 3, 6 and 9
+            // create screen  
+			const scene = new Urpflanze.Scene();
+            const shapes = [3, 6, 9, 12];
+            let pattern = 0;
+            let index = 0;
+			let iterations = 1;
+            let defaultTime = 2000;
+			let time = defaultTime;
+            let stroke = "FFFFFF"
+
+
+            const Triangle = (reps, side, calc, stroke) => new Urpflanze.Triangle({
+                repetitions: reps,
+                sideLength: side,
+                distance: (calc) => Math.sin(scene.currentTime / (300/iterations)) * 200,
+                drawer: {
+                    stroke
+                }
+            })
+
+         
+            
+
+            let Tri03 = Triangle(3, 3, null);
+            let Tri06 = Triangle(6, 10, null);
+            let Tri09 = Triangle(9, 10, null);
+            let Tri12 = Triangle(12, 10, null);
+
+
+
+			scene.add(Triangle(3, 10, null));
+
+
+            function quickPruneAsc(scene){
+                const children = scene.getChildren();
+                let interval;
+
+                interval = setInterval(() => {
+                    scene.remove(children.length - 1)
+                }, 500);
+
+                if(children.length <= 3) {
+                    clearInterval(interval);
+                    return;
+                }
+            }
+
+            function pruneAnimations(){
+                const children = scene.getChildren();
+                
+                if(children.length === 5){
+                    // quickPruneAsc(scene);
+                    scene.removeChildren();
+                    scene.add(Triangle(3 + iterations, 10, null, '#FFF'))
+                    return true;
+                }
+
+                return false;
+            }
+
+            function getAnimationPattern(){
+                if(!pattern) {
+                    pattern = 1;
+                    return pattern;
+                }
+                else if (pattern === shapes[shapes.length - 1]){
+                    pattern = 0;
+                    index = 0;
+                    return pattern;
+                }
+
+                index = index + 1;
+                pattern = shapes[index];
+                return pattern;
+            }
+		
+			const removeFromScene = () => {
+				const children = scene.getChildren();
+				const length = children.length;
+				const index = length - 1;
+				const child = children[index];
+
+				if(length){
+					scene.remove(length - 1);
+				}
+			}
+
+
+			const createShapeInterval = () => {
+                time = 2000;
+                const sx = index;
+                const ry = index * .05;
+                const patternId = getAnimationPattern();
+				if(patternId === 3){
+					scene.add(Triangle(3, 10, null, '#FF00FF'));
+				} else if(patternId === 6) {
+					scene.add(Triangle(6, 10 + iterations, null, '#FF4500'));
+				} else if(patternId === 9) {
+					scene.add(Triangle(9, (10 - iterations) + 1, null, stroke));
+				} else if(patternId === 12) {
+					scene.add(Triangle(12, 30 * iterations, null, '#FF0000'));
+				} else {
+					scene.add(Triangle(3, 20, null, '#483D8B'));
+				}
+
+                let pruned = pruneAnimations();
+
+                if(pruned){
+                    time = defaultTime;
+                    pattern = 0;
+                    index = 0;
+                    iterations++
+                    console.log(scene.getChildren())
+                    stroke = "#F0F8FF"
+                    // change fill color
+                }
+
+                console.log(scene.getChildren().length, pruned, patternId, iterations, time)
+			} 
+
+
+			mainInterval = setInterval(createShapeInterval, time);
+			const drawer = new Urpflanze.DrawerCanvas(scene, document.body)
+			drawer.startAnimation() // <- change draw() to startAnimation()
+		</script>
+	</body>
+</html>

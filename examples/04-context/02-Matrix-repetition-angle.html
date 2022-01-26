@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>Urpflanze | Context | 02 - Matrix repetition angle</title>
+		<script src="https://cdn.jsdelivr.net/npm/@urpflanze/js/build/umd/urpflanze-light.min.js"></script>
+		<style>
+			* {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<script>
+			const scene = new Urpflanze.Scene()
+
+			const rects = new Urpflanze.Rect({
+				repetitions: [16],
+				sideLength: 5,
+				distance: 16,
+				rotateZ: ({ repetition }) => {
+					const t = Math.sin(scene.currentTime / 1000)
+
+					const center = [Math.cos(scene.currentTime / 300) * t, Math.sin(scene.currentTime / 300) * t]
+
+					return Urpflanze.angleFromRepetition(repetition, center)
+				},
+			})
+
+			scene.add(rects)
+
+			const drawer = new Urpflanze.DrawerCanvas(scene, document.body)
+			drawer.startAnimation()
+		</script>
+	</body>
+</html>

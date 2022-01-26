@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>Urpflanze | Repetitions | 03 - Color the lines</title>
+		<script src="https://cdn.jsdelivr.net/npm/@urpflanze/js/build/umd/urpflanze-light.min.js"></script>
+		<style>
+			* {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<script>
+			const scene = new Urpflanze.Scene()
+
+			const lines = new Urpflanze.Line({
+				repetitions: [20, 100],
+				sideLength: [5, 1],
+
+				distance: [9.5, 0],
+				rotateZ: Math.PI / 2,
+				translate: propArguments => {
+					const x = propArguments.repetition.col.offset * -330 + scene.center[0] / 1.2
+					const y = Math.sin(propArguments.repetition.col.offset * Math.PI * 2) * 30
+
+					return [x, y]
+				},
+				drawer: {
+					stroke: propArguments => {
+						const hue = propArguments.repetition.col.offset * 360
+						const offset = scene.currentTime + 300 * propArguments.repetition.row.offset
+
+						const h = Math.floor(hue + offset)
+						return `hsl(${h % 360}, 100%, 50%)`
+					},
+					lineWidth: 4,
+				},
+			})
+
+			scene.add(lines)
+
+			const drawer = new Urpflanze.DrawerCanvas(scene, document.body)
+			drawer.startAnimation()
+		</script>
+	</body>
+</html>

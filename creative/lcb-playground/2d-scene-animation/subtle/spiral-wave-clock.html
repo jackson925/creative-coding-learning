@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<script src="https://cdn.jsdelivr.net/npm/@urpflanze/js/build/umd/urpflanze-light.min.js"></script>
+		<style>
+			* {
+				margin: 0;
+				overflow: hidden;
+				display: flex;
+			}
+		</style>
+	</head>
+	<body>
+		<script>
+            // display triangle animation repeating repitions of traingles in set of 3, 6 and 9
+            // create screen  
+
+
+            let pattern = 0;
+            let index = 0;
+			let iterations = 1;
+            let defaultTime = 10;
+			let time = defaultTime;
+            let stroke = "FFFFFF"
+            let maxAnimations = 5;
+
+
+
+			const scene = new Urpflanze.Scene();
+
+
+            function pruneAnimations(){
+                const children = scene.getChildren();
+                
+                if(children.length === maxAnimations){
+                    scene.removeChildren();
+                    return true;
+                }
+
+                return false;
+            }
+
+
+            const shape = new Urpflanze.ShapeLoop({
+				repetitions: [2,4],
+				distance: () => scene.currentTime / 10000 ^ Math.sin(scene.currentTime * 1000),
+				sideLength: [120, 12],
+				loop: {
+					start: 1,
+					end: 6,
+					inc: 0.1,
+					vertex: (shapeLoopRepetition, propArguments) => {
+						const frequency = propArguments.repetition.index
+						const angle = shapeLoopRepetition.offset * Math.PI * 2
+
+						const x = shapeLoopRepetition.offset * 2 - 1
+						const y = Math.sin(angle * frequency)
+
+						return [x, y]
+					},
+                    translate: propArguments => {
+                        const x = propArguments.repetition.col.offset * -30 * scene.center[0] 
+                        const y = propArguments.repetition.col.offset - 20 * 10
+
+                        return [x, y]
+				    },
+				},
+
+				loopDependencies: ['propArguments'],
+				bClosed: false,
+			});
+
+
+            const min = new Urpflanze.ShapeLoop({
+				repetitions: [2, 4],
+				distance: () => scene.currentTime / (1000) ^ Math.sin(scene.currentTime * 100),
+				sideLength: [1200, 120],
+				loop: {
+					start: 0,
+					end: 1,
+					inc: 0.1,
+					vertex: (shapeLoopRepetition, propArguments) => {
+						const frequency = propArguments.repetition.index * 1
+						const angle = shapeLoopRepetition.offset * Math.PI * 2
+
+						const x = shapeLoopRepetition.offset * 4 - 1
+						const y = Math.sin(angle * frequency)
+
+						return [x, y]
+					},
+                    translate: propArguments => {
+                        const x = propArguments.repetition.col.offset * -30 + scene.center[0] / 1
+                        const y = propArguments.repetition.col.offset - 20
+
+                        return [x, y]
+				    },
+				},
+                drawer: {
+                    stroke: propArguments => {
+                        const hue = propArguments.repetition.col.offset - 10
+                        const offset = scene.currentTime * 120 * propArguments.repetition.row.offset
+    
+                        const h = Math.floor(hue + offset) - offset
+                        return `hsl(${h % 180}, 60%, 30%)`
+                    },
+                },
+                modifiers: [new Urpflanze.Modifiers.Smooth({ level: 5, tension: 0 })],
+				loopDependencies: ['propArguments'],
+				bClosed: false,
+			});
+
+            const max = new Urpflanze.ShapeLoop({
+				repetitions: [2, 4],
+				distance: () => scene.currentTime / (100000) ^ Math.sin(scene.currentTime * 100),
+				sideLength: [1800, 200],
+                perspective: 0.1,
+				loop: {
+					start: 0,
+					end: 6 * 10 * 10,
+					inc: 0.1,
+					vertex: (shapeLoopRepetition, propArguments) => {
+						const frequency = propArguments.repetition.index * 2.5
+						const angle = shapeLoopRepetition.offset * Math.PI * 2
+
+						const x = shapeLoopRepetition.offset * 16 - 1
+						const y = Math.sin(angle * frequency)
+
+						return [x, y]
+					},
+                    translate: propArguments => {
+                        const x = propArguments.repetition.col.offset * -30 + scene.center[0] / 10
+                        const y = propArguments.repetition.col.offset - 20
+
+                        return [x, y]
+				    },
+				},
+                drawer: {
+                    stroke: propArguments => {
+                        const hue = propArguments.repetition.col.offset - 10
+                        const offset = scene.currentTime * 120 * propArguments.repetition.row.offset
+    
+                        const h = Math.floor(hue + offset) - offset
+                        return `hsl(${h % 180}, 30%, 60%)`
+                    },
+                },
+                modifiers: [new Urpflanze.Modifiers.Smooth({ level: 5, tension: 0 })],
+				loopDependencies: ['propArguments'],
+				bClosed: false,
+			});
+
+
+
+            scene.add(shape);
+            scene.add(min);
+            // scene.add(max);
+
+
+
+
+			// mainInterval = setInterval(animate, time);
+			const drawer = new Urpflanze.DrawerCanvas(scene, document.body)
+            // , {
+			// 	ghosts: 80,
+			// 	ghostSkipFunction: ghostsRepetition => ghostsRepetition.index ** 1.5,
+			// })
+			drawer.startAnimation() // <- change draw() to startAnimation()
+		</script>
+	</body>
+</html>
